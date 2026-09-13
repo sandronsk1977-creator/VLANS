@@ -1,0 +1,1963 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SF Academia Cyber Segurança e Redes</title>
+    <link rel="icon" href="favicon-sf-red_blue.png" type="image/png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
+            border-bottom: 2px solid #00d4ff;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(90deg, #00d4ff, #7b2ff7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: none;
+        }
+
+        .header h1 .shield {
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        .header p { color: #aaa; margin-top: 5px; }
+
+        .progress-bar {
+            width: 80%;
+            max-width: 600px;
+            height: 20px;
+            background: #1a1a2e;
+            border-radius: 10px;
+            margin: 15px auto;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff, #7b2ff7);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .stats span { color: #00d4ff; font-weight: bold; }
+
+        .main-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .topology-panel {
+            flex: 1;
+            min-width: 400px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .topology-panel h2 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #00d4ff;
+        }
+
+        .topology-canvas {
+            width: 100%;
+            height: 400px;
+            background: #0a0a1a;
+            border-radius: 10px;
+            border: 1px solid #333;
+        }
+
+        .terminal-panel {
+            flex: 1;
+            min-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .task-panel {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .task-panel h3 {
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .task-panel .level-title {
+            font-size: 1.2em;
+            color: #00d4ff;
+            margin-bottom: 5px;
+        }
+
+        .task-panel .task-desc {
+            color: #ccc;
+            line-height: 1.6;
+        }
+
+        .task-panel .hint {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255,215,0,0.1);
+            border-left: 3px solid #ffd700;
+            border-radius: 5px;
+            font-size: 0.9em;
+            color: #ffd700;
+        }
+
+        .terminal {
+            background: #0d0d0d;
+            border-radius: 15px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #333;
+            min-height: 300px;
+        }
+
+        .terminal-header {
+            background: #1a1a1a;
+            padding: 10px 15px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid #333;
+        }
+
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .terminal-dot.red { background: #ff5f56; }
+        .terminal-dot.yellow { background: #ffbd2e; }
+        .terminal-dot.green { background: #27c93f; }
+
+        .terminal-title {
+            margin-left: 10px;
+            color: #888;
+            font-size: 0.85em;
+        }
+
+        .terminal-body {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .terminal-body .output {
+            margin-bottom: 5px;
+        }
+
+        .terminal-body .output.success { color: #27c93f; }
+        .terminal-body .output.error { color: #ff5f56; }
+        .terminal-body .output.info { color: #00d4ff; }
+        .terminal-body .output.warning { color: #ffbd2e; }
+        .terminal-body .output.system { color: #888; }
+
+        .input-line {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+
+        .prompt {
+            color: #00d4ff;
+            white-space: nowrap;
+            margin-right: 5px;
+        }
+
+        .terminal-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            outline: none;
+            caret-color: #00d4ff;
+        }
+
+        .buttons-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff, #7b2ff7);
+            color: #fff;
+        }
+
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0,212,255,0.3); }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27c93f, #00a82d);
+            color: #fff;
+        }
+
+        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(39,201,63,0.3); }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffbd2e, #ff8c00);
+            color: #fff;
+        }
+
+        .btn-warning:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(255,189,46,0.3); }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff5f56, #cc0000);
+            color: #fff;
+        }
+
+        .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(255,95,86,0.3); }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .vlan-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .vlan-table th, .vlan-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border: 1px solid #333;
+        }
+
+        .vlan-table th {
+            background: rgba(0,212,255,0.2);
+            color: #00d4ff;
+        }
+
+        .vlan-table td { background: rgba(255,255,255,0.03); }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: #1a1a2e;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            border: 2px solid #00d4ff;
+            animation: modalPop 0.3s ease;
+        }
+
+        @keyframes modalPop {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal h2 { color: #ffd700; font-size: 2em; margin-bottom: 15px; }
+        .modal p { color: #ccc; line-height: 1.6; margin-bottom: 20px; }
+        .modal .score { font-size: 1.5em; color: #00d4ff; margin: 15px 0; }
+
+        .welcome-modal {
+            max-width: 600px;
+        }
+
+        .welcome-modal h2 {
+            line-height: 1.35;
+            margin-bottom: 18px;
+        }
+
+        .welcome-modal .shield-m {
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+
+        .welcome-white {
+            color: #ffffff;
+            -webkit-text-fill-color: #ffffff;
+        }
+
+        .welcome-grad {
+            background: linear-gradient(90deg, #00d4ff, #7b2ff7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-modal .features {
+            text-align: left;
+            margin: 20px 0;
+        }
+
+        .welcome-modal .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+            color: #ccc;
+        }
+
+        .feature-item .icon {
+            width: 30px;
+            height: 30px;
+            background: rgba(0,212,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00d4ff;
+            flex-shrink: 0;
+        }
+
+        .reference-panel {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-top: 15px;
+        }
+
+        .reference-panel h3 { color: #7b2ff7; margin-bottom: 10px; }
+
+        .cmd-list {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+        }
+
+        .cmd-list div {
+            padding: 3px 0;
+            color: #aaa;
+        }
+
+        .cmd-list span { color: #00d4ff; }
+
+        @media (max-width: 900px) {
+            .main-container { flex-direction: column; }
+            .topology-panel, .terminal-panel { min-width: 100%; }
+        }
+
+        .console-line { white-space: pre-wrap; word-break: break-all; }
+        .blink { animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .connection-line {
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .vlan-legend {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85em;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+
+        /* ===== Assistente Robô (SF Bot) ===== */
+        .robot {
+            position: fixed;
+            left: auto;
+            right: 16px;
+            bottom: 14px;
+            z-index: 950;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .robot-bubble {
+            position: relative;
+            max-width: 310px;
+            background: #ffffff;
+            color: #16213e;
+            border-radius: 16px;
+            padding: 12px 16px;
+            box-shadow: 0 10px 34px rgba(0,0,0,0.5), 0 0 0 2px #00d4ff;
+            font-size: 0.95em;
+            line-height: 1.5;
+            display: none;
+        }
+
+        .robot-bubble.visible { display: block; animation: robotPop 0.35s ease; }
+
+        .robot-bubble::after {
+            content: '';
+            position: absolute;
+            right: 24px;
+            left: auto;
+            bottom: -10px;
+            border: 7px solid transparent;
+            border-top: 11px solid #00d4ff;
+        }
+
+        .rb-title {
+            display: block;
+            font-weight: 700;
+            color: #7b2ff7;
+            margin-bottom: 4px;
+        }
+
+        .rb-text b { color: #00d4ff; }
+
+        @keyframes robotPop {
+            from { transform: scale(0.65) translateY(10px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .robot-figure {
+            width: 92px;
+            height: 92px;
+            animation: floaty 2.6s ease-in-out infinite;
+            filter: drop-shadow(0 6px 14px rgba(0,0,0,0.4));
+        }
+
+        @keyframes floaty {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .antena-led { animation: ledBlink 1.3s steps(2, start) infinite; }
+
+        @keyframes ledBlink {
+            0% { opacity: 1; }
+            50% { opacity: 0.15; }
+        }
+
+        .eye {
+            transform-box: fill-box;
+            transform-origin: center;
+            animation: blinky 4.5s infinite;
+        }
+
+        @keyframes blinky {
+            0%, 90%, 100% { transform: scaleY(1); }
+            94% { transform: scaleY(0.12); }
+        }
+
+        .robot-arm {
+            transform-box: view-box;
+            transform-origin: 80px 101px;
+            animation: pointArm 1.9s ease-in-out infinite;
+        }
+
+        @keyframes pointArm {
+            0%, 100% { transform: rotate(2deg); }
+            50% { transform: rotate(-48deg); }
+        }
+
+        @media (max-width: 760px) {
+            .robot { transform: scale(0.8); right: 6px; bottom: 6px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1><svg class="shield" viewBox="0 0 64 64" width="42" height="42" aria-hidden="true">
+        <defs>
+            <linearGradient id="sfGradH" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#ff2d55"/>
+                <stop offset="0.5" stop-color="#7b2ff7"/>
+                <stop offset="1" stop-color="#00d4ff"/>
+            </linearGradient>
+        </defs>
+        <path d="M32 4 L56 12 V30 C56 46 45 57 32 62 C19 57 8 46 8 30 V12 Z" fill="url(#sfGradH)" stroke="#ffffff" stroke-width="3"/>
+        <text x="32" y="41" font-family="Arial, sans-serif" font-size="26" font-weight="bold" fill="#ffffff" text-anchor="middle">SF</text>
+    </svg>SF Academia Cyber Segurança e Redes</h1>
+    <p>🔌 Aprenda a configurar VLANs de forma interativa</p>
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="stats">
+        <div>Nível: <span id="levelDisplay">1</span>/6</div>
+        <div>Pontos: <span id="scoreDisplay">0</span></div>
+        <div>Tentativas: <span id="attemptsDisplay">0</span></div>
+    </div>
+</div>
+
+<div class="main-container">
+    <div class="topology-panel">
+        <h2>Topologia da Rede</h2>
+        <canvas class="topology-canvas" id="topologyCanvas"></canvas>
+        <div class="vlan-legend" id="vlanLegend"></div>
+        <table class="vlan-table" id="vlanTable" style="margin-top:15px;">
+            <thead>
+                <tr>
+                    <th>VLAN ID</th>
+                    <th>Nome</th>
+                    <th>Ports</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="vlanTableBody"></tbody>
+        </table>
+    </div>
+
+    <div class="terminal-panel">
+        <div class="task-panel">
+            <div class="level-title" id="levelTitle">Nível 1: Criando sua primeira VLAN</div>
+            <div class="task-desc" id="taskDesc">
+                Bem-vindo! Neste nível, você vai criar uma VLAN no switch. 
+                Uma VLAN (Virtual Local Area Network) separa dispositivos em redes lógicas diferentes.
+            </div>
+            <div class="hint" id="hintBox" style="display:none">
+                💡 Dica: Para entrar no modo de configuração, digite <code>configure terminal</code>
+            </div>
+        </div>
+
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="terminal-dot red"></div>
+                <div class="terminal-dot yellow"></div>
+                <div class="terminal-dot green"></div>
+                <span class="terminal-title">Switch0 - CLI</span>
+            </div>
+            <div class="terminal-body" id="terminalBody">
+                <div class="output system">Switch0 initialised.</div>
+                <div class="output info">Bem-vindo ao simulador de switch Sisco!</div>
+                <div class="output system">Digite 'ajuda' para ver os comandos disponíveis.</div>
+                <div class="input-line">
+                    <span class="prompt">Switch&gt;</span>
+                    <input type="text" class="terminal-input" id="terminalInput" autofocus autocomplete="off" spellcheck="false">
+                </div>
+            </div>
+        </div>
+
+        <div class="buttons-row">
+            <button class="btn btn-primary" onclick="showHint()">💡 Dica</button>
+            <button class="btn btn-warning" onclick="resetLevel()">🔄 Resetar Nível</button>
+            <button class="btn btn-success" onclick="skipLevel()">⏭ Próximo Nível</button>
+            <button class="btn btn-danger" onclick="resetGame()">🏠 Reiniciar Jogo</button>
+        </div>
+
+        <div class="reference-panel">
+            <h3>📖 Referência de Comandos</h3>
+            <div class="cmd-list">
+                <div><span>configure terminal</span> - Entrar no modo de configuração</div>
+                <div><span>vlan &lt;id&gt;</span> - Criar uma VLAN</div>
+                <div><span>name &lt;nome&gt;</span> - Nomear a VLAN</div>
+                <div><span>exit</span> - Sair do modo atual</div>
+                <div><span>interface &lt;port&gt;</span> - Selecionar uma porta</div>
+                <div><span>switchport mode access</span> - Definir como porta access</div>
+                <div><span>switchport access vlan &lt;id&gt;</span> - Atribuir porta à VLAN</div>
+                <div><span>switchport mode trunk</span> - Definir como porta trunk</div>
+                <div><span>show vlan brief</span> - Ver resumo das VLANs</div>
+                <div><span>show interfaces status</span> - Ver status das portas</div>
+                <div><span>copy running-config startup-config</span> - Salvar configuração</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Robot Assistant -->
+<div class="robot" id="robot">
+    <div class="robot-bubble" id="robotBubble">
+        <span class="rb-title" id="robotTitle">SF Bot 🤖</span>
+        <span class="rb-text" id="robotText"></span>
+        <button class="rb-next" id="robotContinueBtn" style="display:none;" onclick="robotContinue()">▶ Iniciar Etapa</button>
+    </div>
+    <svg class="robot-figure" id="robotFigure" viewBox="0 0 130 130" aria-hidden="true">
+        <line x1="60" y1="34" x2="46" y2="10" stroke="#00d4ff" stroke-width="4" stroke-linecap="round"/>
+        <circle class="antena-led" cx="46" cy="10" r="5" fill="#ffd700"/>
+        <rect x="8" y="48" width="14" height="26" rx="6" fill="#1c2638" stroke="#00d4ff" stroke-width="2"/>
+        <rect x="98" y="48" width="14" height="26" rx="6" fill="#1c2638" stroke="#00d4ff" stroke-width="2"/>
+        <rect x="20" y="32" width="80" height="58" rx="18" fill="#232a33" stroke="#00d4ff" stroke-width="3"/>
+        <circle class="eye" cx="47" cy="58" r="7" fill="#00d4ff"/>
+        <circle class="eye" cx="73" cy="58" r="7" fill="#00d4ff"/>
+        <path d="M48 74 Q60 82 72 74" stroke="#00d4ff" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <rect x="36" y="94" width="48" height="24" rx="9" fill="#232a33" stroke="#00d4ff" stroke-width="2"/>
+        <circle cx="60" cy="106" r="5" fill="#ff2d55"/>
+        <g class="robot-arm">
+            <rect x="76" y="96" width="28" height="10" rx="5" fill="#00d4ff"/>
+            <path d="M102 92 L122 80 L124 122 L104 108 Z" fill="#ffd700" stroke="#7b2ff7" stroke-width="1.5"/>
+        </g>
+    </svg>
+</div>
+
+<!-- Welcome Modal -->
+<div class="modal-overlay active" id="welcomeModal">
+    <div class="modal welcome-modal">
+        <h2><svg class="shield shield-m" viewBox="0 0 64 64" width="38" height="38" aria-hidden="true">
+                <defs>
+                    <linearGradient id="sfGradM" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stop-color="#ff2d55"/>
+                        <stop offset="0.5" stop-color="#7b2ff7"/>
+                        <stop offset="1" stop-color="#00d4ff"/>
+                    </linearGradient>
+                </defs>
+                <path d="M32 4 L56 12 V30 C56 46 45 57 32 62 C19 57 8 46 8 30 V12 Z" fill="url(#sfGradM)" stroke="#ffffff" stroke-width="3"/>
+                <text x="32" y="41" font-family="Arial, sans-serif" font-size="26" font-weight="bold" fill="#ffffff" text-anchor="middle">SF</text>
+            </svg>
+            <span class="welcome-white">Bem-Vindo à SF Cyber</span><br>
+            <span class="welcome-grad">Academia CiberSegurança e Redes</span>
+        </h2>
+        <p>Aprenda a configurar VLANs em um simulador interativo de switch!</p>
+        <div class="features">
+            <div class="feature-item">
+                <div class="icon">1</div>
+                <span>Criar e nomear VLANs</span>
+            </div>
+            <div class="feature-item">
+                <div class="icon">2</div>
+                <span>Atribuir portas às VLANs</span>
+            </div>
+            <div class="feature-item">
+                <div class="icon">3</div>
+                <span>Configurar portas trunk</span>
+            </div>
+            <div class="feature-item">
+                <div class="icon">4</div>
+                <span>Verificar conectividade</span>
+            </div>
+        </div>
+        <p style="font-size:0.9em; color:#888;">Use o terminal para digitar comandos Sisco reais!</p>
+        <button class="btn btn-primary" onclick="closeWelcome()" style="font-size:1.1em; padding: 15px 40px;">
+            🚀 Começar!
+        </button>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal-overlay" id="successModal">
+    <div class="modal">
+        <h2 id="successTitle">🎉 Nível Completo!</h2>
+        <p id="successMsg">Parabéns! Você completou o nível!</p>
+        <div class="score" id="successScore">+100 pontos</div>
+        <button class="btn btn-success" onclick="nextLevel()" style="font-size:1.1em; padding: 15px 40px;">
+            Próximo Nível →
+        </button>
+    </div>
+</div>
+
+<!-- Game Complete Modal -->
+<div class="modal-overlay" id="gameCompleteModal">
+    <div class="modal">
+        <h2>🏆 Jogo Completo!</h2>
+        <p>Parabéns! Você dominou a configuração de VLANs!</p>
+        <div class="score" id="finalScore">Pontuação Final: 0</div>
+        <p style="color:#888;">Você agora sabe:</p>
+        <div style="text-align:left; color:#ccc; margin: 15px 0;">
+            ✓ Criar e nomear VLANs<br>
+            ✓ Atribuir portas às VLANs<br>
+            ✓ Configurar portas trunk<br>
+            ✓ Verificar configurações<br>
+            ✓ Separar domínios de broadcast
+        </div>
+        <button class="btn btn-primary" onclick="resetGame()" style="font-size:1.1em; padding: 15px 40px;">
+            🔄 Jogar Novamente
+        </button>
+    </div>
+</div>
+
+<script>
+// ===================== GAME STATE =====================
+const state = {
+    currentLevel: 0,
+    score: 0,
+    attempts: 0,
+    mode: 'user', // user, config, interface
+    currentInterface: null,
+    vlanConfig: {
+        vlans: {},
+        interfaces: {}
+    },
+    commandHistory: [],
+    historyIndex: -1,
+};
+
+// ===================== LEVELS =====================
+const levels = [
+    {
+        id: 1,
+        title: "Nível 1: Criando sua primeira VLAN",
+        desc: "Crie a VLAN 10 no switch. Uma VLAN é uma rede virtual que separa dispositivos fisicamente conectados em domínios de broadcast diferentes.",
+        hint: "💡 Dica: Digite <code>configure terminal</code> para entrar no modo de configuração, depois <code>vlan 10</code> para criar a VLAN.",
+        initialConfig: { vlans: {}, interfaces: {} },
+        check: (cfg) => cfg.vlans[10] !== undefined,
+        successMsg: "Excelente! Você criou a VLAN 10! VLANs separam domínios de broadcast.",
+    },
+    {
+        id: 2,
+        title: "Nível 2: Nomeando a VLAN",
+        desc: "A VLAN 10 foi criada, mas precisa de um nome. Dê o nome 'TI' para a VLAN 10.",
+        hint: "💡 Dica: Primeiro entre na VLAN com <code>vlan 10</code>, depois use <code>name TI</code> para nomeá-la.",
+        initialConfig: { vlans: { 10: { name: '', ports: [] } }, interfaces: {} },
+        check: (cfg) => cfg.vlans[10] && cfg.vlans[10].name === 'TI',
+        successMsg: "Perfeito! A VLAN 10 agora se chama 'TI'. Nomear VLANs ajuda na identificação!",
+    },
+    {
+        id: 3,
+        title: "Nível 3: Criando múltiplas VLANs",
+        desc: "A empresa precisa de mais uma rede. Crie a VLAN 20 com o nome 'RH'.",
+        hint: "💡 Dica: Use <code>vlan 20</code> e <code>name RH</code> no modo de configuração.",
+        initialConfig: { vlans: { 10: { name: 'TI', ports: [] } }, interfaces: {} },
+        check: (cfg) => cfg.vlans[20] && cfg.vlans[20].name === 'RH',
+        successMsg: "Ótimo! Agora temos 2 VLANs separando as redes da empresa!",
+    },
+    {
+        id: 4,
+        title: "Nível 4: Atribuindo portas às VLANs",
+        desc: "Agora atribua a porta FastEthernet0/1 à VLAN 10 (TI). Isso fará com que qualquer dispositivo conectado nessa porta faça parte da VLAN 10.",
+        hint: "💡 Dica: Use <code>interface fa0/1</code> para selecionar a porta, <code>switchport mode access</code> para definir como access, e <code>switchport access vlan 10</code> para atribuir à VLAN.",
+        initialConfig: { 
+            vlans: { 10: { name: 'TI', ports: [] }, 20: { name: 'RH', ports: [] } }, 
+            interfaces: {} 
+        },
+        check: (cfg) => cfg.interfaces['fa0/1'] && cfg.interfaces['fa0/1'].mode === 'access' && cfg.interfaces['fa0/1'].vlan === 10,
+        successMsg: "Excelente! A porta fa0/1 agora faz parte da VLAN 10!",
+    },
+    {
+        id: 5,
+        title: "Nível 5: Portas Trunk",
+        desc: "Configure a porta GigabitEthernet0/1 como porta trunk. Portas trunk permitem a passagem de tráfego de múltiplas VLANs entre switches.",
+        hint: "💡 Dica: Selecione a porta com <code>interface g0/1</code> e use <code>switchport mode trunk</code>.",
+        initialConfig: { 
+            vlans: { 10: { name: 'TI', ports: ['fa0/1'] }, 20: { name: 'RH', ports: [] } }, 
+            interfaces: { 'fa0/1': { mode: 'access', vlan: 10 } } 
+        },
+        check: (cfg) => cfg.interfaces['g0/1'] && cfg.interfaces['g0/1'].mode === 'trunk',
+        successMsg: "Perfeito! A porta trunk agora transporta tráfego de todas as VLANs!",
+    },
+    {
+        id: 6,
+        title: "Nível 6: Configuração Completa",
+        desc: "Complete a configuração: atribua a porta fa0/2 à VLAN 20 (RH) como porta access. Depois, salve a configuração!",
+        hint: "💡 Dica: Configure a porta com <code>interface fa0/2</code>, <code>switchport mode access</code>, <code>switchport access vlan 20</code>. Depois salve com <code>copy running-config startup-config</code>.",
+        initialConfig: { 
+            vlans: { 10: { name: 'TI', ports: ['fa0/1'] }, 20: { name: 'RH', ports: [] } }, 
+            interfaces: { 
+                'fa0/1': { mode: 'access', vlan: 10 }, 
+                'g0/1': { mode: 'trunk' } 
+            } 
+        },
+        check: (cfg) => cfg.interfaces['fa0/2'] && cfg.interfaces['fa0/2'].mode === 'access' && cfg.interfaces['fa0/2'].vlan === 20 && cfg._saved,
+        successMsg: "🏆 Você completou todas as configurações! Agora domina VLANs!",
+    }
+];
+
+// ===================== CANVAS TOPOLOGY (ANIMADO E INTERATIVO) =====================
+const canvas = document.getElementById('topologyCanvas');
+const ctx = canvas.getContext('2d');
+
+let animTime = 0;
+let hoveredDevice = null;
+let selectedDevice = null;
+let devices = [];
+let topo = { w: 0, h: 0, cx: 0, cy: 0, sw: 0, sh: 0 };
+let mouseX = -1e9, mouseY = -1e9;
+
+function resizeCanvas() {
+    const cssH = 620;
+    canvas.width = Math.max(canvas.clientWidth, 50) * 2;
+    canvas.height = cssH * 2;
+    canvas.style.height = cssH + 'px';
+    drawTopology();
+}
+
+function getVlanColor(vlanId) {
+    const colors = {
+        1: '#888888',
+        10: '#00d4ff',
+        20: '#ff6b9d',
+        30: '#ffd700',
+        40: '#27c93f',
+    };
+    return colors[vlanId] || '#555';
+}
+
+function buildTopology() {
+    const cfg = state.vlanConfig;
+    const w = canvas.width, h = canvas.height;
+    const cx = w / 2, cy = h / 2;
+    const marginX = 250;
+    const sw = Math.min(w * 0.34, 390);
+    const sh = Math.min(h * 0.12, 175);
+    topo = { w, h, cx, cy, sw, sh };
+
+    const defs = [
+        { type: 'pc', label: 'PC1', x: marginX, y: h * 0.24, port: 'fa0/1', defaultVlan: 10 },
+        { type: 'pc', label: 'PC2', x: marginX, y: h * 0.76, port: 'fa0/2', defaultVlan: 20 },
+        { type: 'pc', label: 'PC3', x: w - marginX, y: h * 0.24, port: 'fa0/3', defaultVlan: null },
+        { type: 'pc', label: 'PC4', x: w - marginX, y: h * 0.76, port: 'fa0/4', defaultVlan: null },
+        { type: 'switch', label: 'SWITCH 1', x: cx, y: h * 0.115, port: 'g0/1', defaultVlan: null },
+        { type: 'main-switch', label: 'SWITCH 0', x: cx, y: cy, port: null, defaultVlan: null },
+    ];
+
+    devices = defs.map(d => {
+        const out = Object.assign({}, d, {
+            vlan: d.defaultVlan || null,
+            mode: null,
+            isTrunk: false,
+            w: d.type === 'pc' ? 170 : sw,
+            dh: d.type === 'pc' ? 112 : sh,
+        });
+        if (d.port && cfg.interfaces[d.port]) {
+            const intf = cfg.interfaces[d.port];
+            out.mode = intf.mode;
+            if (intf.mode === 'access') { out.vlan = intf.vlan; }
+            else if (intf.mode === 'trunk') { out.isTrunk = true; out.vlan = null; }
+        }
+        return out;
+    });
+}
+
+function portSeed(port) {
+    let s = 0;
+    for (let i = 0; i < port.length; i++) s += port.charCodeAt(i);
+    return (s % 100) / 100;
+}
+
+function hitTest(x, y) {
+    for (let i = 0; i < devices.length; i++) {
+        const d = devices[i];
+        const pad = d.type === 'main-switch' ? 45 : 30;
+        if (Math.abs(x - d.x) <= d.w / 2 + pad && Math.abs(y - d.y) <= d.dh / 2 + pad) return d;
+    }
+    return null;
+}
+
+function deviceInfo(d) {
+    if (d.type === 'main-switch') {
+        const vcount = Object.keys(state.vlanConfig.vlans).length;
+        return {
+            title: 'SWITCH 0 · Sisco 2960',
+            lines: [
+                vcount ? vcount + ' VLAN(s) configurada(s)' : 'Nenhuma VLAN ainda',
+                'Configurar pelas portas abaixo',
+            ],
+        };
+    }
+    if (d.type === 'switch') {
+        return d.mode === 'trunk'
+            ? { title: d.label, lines: ['Porta ' + d.port.toUpperCase() + ' -> TRUNK', 'Passa trafego de todas as VLANs'] }
+            : { title: d.label, lines: ['Porta ' + d.port.toUpperCase(), 'Sem trunk (VLAN 1)'] };
+    }
+    const lines = [];
+    if (d.mode === 'access' && d.vlan) {
+        const v = state.vlanConfig.vlans[d.vlan];
+        lines.push('Porta ' + d.port.toUpperCase() + ' -> VLAN ' + d.vlan + (v && v.name ? ' (' + v.name + ')' : ''));
+        lines.push('Isolado em rede propria');
+    } else {
+        lines.push('Porta ' + d.port.toUpperCase() + ' -> VLAN 1 (default)');
+        lines.push('Use switchport para configurar');
+    }
+    lines.push(d.mode ? 'Modo: ' + d.mode.toUpperCase() : 'Sem configuracao');
+    return { title: d.label, lines: lines };
+}
+
+function drawGrid(w, h) {
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < w; x += 50) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+    }
+    for (let y = 0; y < h; y += 50) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+}
+
+function drawConnection(pc) {
+    const { cx, cy, sw, sh } = topo;
+    const active = pc.mode === 'access' && pc.vlan;
+    const trunk = pc.isTrunk;
+    const color = trunk ? '#ffd700' : (active ? getVlanColor(pc.vlan) : '#3d3d55');
+    const px = pc.x + (pc.x < cx ? pc.w / 2 : -pc.w / 2);
+    const py = pc.y - 8;
+    let sy = pc.y;
+    if (pc.x < cx) { sy = cy + (sy - cy) * 0.8; }
+    else { sy = cy + (sy - cy) * 0.8; }
+    sy = Math.min(Math.max(sy, cy - sh * 0.42), cy + sh * 0.42);
+    const sx = pc.x < cx ? cx - sw / 2 : cx + sw / 2;
+
+    if (active || trunk) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 12;
+        ctx.globalAlpha = 0.12;
+        ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(sx, sy); ctx.stroke();
+        ctx.globalAlpha = 1;
+    }
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = trunk ? 5 : 4;
+    ctx.setLineDash(trunk ? [16, 9] : []);
+    ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(sx, sy); ctx.stroke();
+    ctx.setLineDash([]);
+
+    if (active || trunk) {
+        const base = portSeed(pc.port);
+        for (let k = 0; k < 2; k++) {
+            const t = (animTime * 0.5 + base + k * 0.5) % 1;
+            const x = px + (sx - px) * t;
+            const y = py + (sy - py) * t;
+            if (t > 0.02 && t < 0.98) {
+                ctx.fillStyle = trunk ? '#ffe082' : '#ffffff';
+                ctx.globalAlpha = 0.95;
+                ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.fill();
+                ctx.globalAlpha = 0.25;
+                ctx.beginPath(); ctx.arc(x, y, 11, 0, Math.PI * 2); ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+        }
+    }
+}
+
+function drawSwitchBox(d) {
+    const x = d.x - d.w / 2, y = d.y - d.dh / 2;
+    const dh = d.dh;
+    const main = d.type === 'main-switch';
+    const glow = hoveredDevice === d || selectedDevice === d;
+    const r = main ? 12 : 10;
+
+    if (glow) { ctx.save(); ctx.shadowColor = '#00d4ff'; ctx.shadowBlur = 45; }
+
+    // Face plate (metal)
+    const g = ctx.createLinearGradient(x, y, x + d.w, y + d.dh);
+    g.addColorStop(0, '#232a33');
+    g.addColorStop(0.5, '#2c3540');
+    g.addColorStop(1, '#1d232c');
+    ctx.fillStyle = g;
+    ctx.strokeStyle = glow ? '#00d4ff' : '#4a5563';
+    ctx.lineWidth = glow ? 5 : 3;
+    ctx.beginPath();
+    ctx.roundRect(x, y, d.w, d.dh, r);
+    ctx.fill();
+    ctx.stroke();
+
+    if (glow) ctx.restore();
+
+    // Inner bezel
+    ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(x + 6, y + 6, d.w - 12, d.dh - 12, Math.max(r - 4, 4));
+    ctx.stroke();
+
+    // Screws on corners
+    function screw(sx, sy) {
+        ctx.fillStyle = '#10141a';
+        ctx.beginPath(); ctx.arc(sx, sy, 4.5, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(sx - 3, sy); ctx.lineTo(sx + 3, sy); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(sx, sy - 3); ctx.lineTo(sx, sy + 3); ctx.stroke();
+    }
+    screw(x + 13, y + 13);
+    screw(x + d.w - 13, y + 13);
+    screw(x + 13, y + d.dh - 13);
+    screw(x + d.w - 13, y + d.dh - 13);
+
+    // Brand silkscreen
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    const bY = y + Math.max(15, dh * 0.13);
+    ctx.fillStyle = '#c9d2dc';
+    ctx.font = 'bold 13px Arial';
+    ctx.fillText('Sisco SYSTEMS', x + 20, bY);
+    ctx.font = '10px Arial';
+    ctx.fillStyle = '#8a95a1';
+    ctx.fillText(main ? 'Catalyst 2960-24TT' : 'Catalyst 2960-4', x + 20, bY + 13);
+
+    // Power / status LEDs
+    const statusLeds = [
+        { label: 'SYST', on: true, c: '#3ddc84' },
+        { label: 'RPS', on: false, c: '#ff6b6b' },
+        { label: 'MGMT', on: true, c: '#ffd700' },
+    ];
+    let lx = x + 22;
+    statusLeds.forEach(sl => {
+        const ledOn = sl.on ? (0.5 + 0.5 * Math.sin(animTime * 1.6 + (sl.label === 'MGMT' ? 2 : 0.5))) : 0;
+        ctx.globalAlpha = sl.on ? Math.max(ledOn, 0.4) : 0.12;
+        ctx.fillStyle = sl.c;
+        ctx.beginPath(); ctx.arc(lx, y + dh * 0.30, 4, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = '#77828f';
+        ctx.font = '9px Arial';
+        ctx.fillText(sl.label, lx - 4, y + dh * 0.30 + 9);
+        lx += 36;
+    });
+
+    // Port geometry
+    const portCount = main ? 24 : 4;
+    const gigCount = main ? 2 : 1;
+    const rows = main ? 2 : 1;
+    const cols = portCount / rows;
+    const innerX = x + 22;
+    const feEndX = x + d.w - 42 - gigCount * 46;
+    const sockW = Math.max(Math.min((feEndX - innerX) / cols, 22), 12);
+    const sockH = 18;
+    const colStep = (feEndX - innerX) / (cols - 1);
+    const rowStep = dh * 0.24;
+    const portsTop = y + dh * 0.42;
+
+    function drawSock(px, py, name, configured, color) {
+        const ledBlink = configured ? (0.5 + 0.5 * Math.sin(animTime * 5 + portSeed(name) * 18)) : 0.1;
+        ctx.globalAlpha = configured ? ledBlink : 0.12;
+        ctx.fillStyle = color;
+        ctx.beginPath(); ctx.arc(px, py - 6, 4, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = configured ? '#16405c' : '#0c1117';
+        ctx.strokeStyle = configured ? 'rgba(150,220,255,0.55)' : 'rgba(255,255,255,0.14)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(px - sockW / 2, py, sockW, sockH, 3);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(0,0,0,0.45)';
+        ctx.fillRect(px - 3, py + 4, 6, sockH - 8);
+        const num = name.indexOf('g0/') === 0 ? ('GE' + name.replace('g0/', '')) : name.replace('fa0/', '');
+        ctx.fillStyle = configured ? '#dbe8f2' : '#525c68';
+        ctx.font = '10px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(num, px, py + sockH + 13);
+    }
+
+    // FastEthernet ports
+    let slot = 0;
+    for (let r = 0; r < rows && slot < portCount; r++) {
+        for (let c = 0; c < cols && slot < portCount; c++) {
+            const name = 'fa0/' + (slot + 1);
+            const px = innerX + sockW / 2 + c * colStep;
+            const py = portsTop + r * rowStep;
+            const intf = state.vlanConfig.interfaces[name];
+            const color = intf ? (intf.mode === 'trunk' ? '#ffd700' : getVlanColor(intf.vlan || 1)) : '#3ddc84';
+            drawSock(px, py, name, !!intf, color);
+            slot++;
+        }
+    }
+
+    // Gigabit uplink ports (right group)
+    const gigW = 30;
+    let gx = x + d.w - 30 - gigW;
+    const gy = y + dh * 0.55;
+    for (let i = 0; i < gigCount; i++) {
+        const name = 'g0/' + (i + 1);
+        const intf = state.vlanConfig.interfaces[name];
+        const color = intf ? (intf.mode === 'trunk' ? '#ffd700' : getVlanColor(intf.vlan || 1)) : '#ffd700';
+        const ledBlink = intf ? (0.5 + 0.5 * Math.sin(animTime * 5 + i)) : 0.1;
+        ctx.globalAlpha = intf ? ledBlink : 0.12;
+        ctx.fillStyle = color;
+        ctx.beginPath(); ctx.arc(gx + gigW / 2, gy - 6, 4, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = intf ? '#3a3a2a' : '#0c1117';
+        ctx.strokeStyle = intf ? 'rgba(255,215,0,0.6)' : 'rgba(255,255,255,0.14)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(gx, gy, gigW, sockH + 6, 3);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#77828f';
+        ctx.font = '9px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('GE-' + (i + 1), gx + gigW / 2, gy + sockH + 16);
+        gx -= gigW + 12;
+    }
+
+    // Bottom silkscreen
+    ctx.fillStyle = '#77828f';
+    ctx.font = '10px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(main ? 'FastEthernet 0/1 - 0/24          GigabitEthernet 0/1 - 0/2' : 'FastEthernet 0/1 - 0/4          GigabitEthernet 0/1', d.x, y + dh - 14);
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+}
+
+function drawPC(d) {
+    const x = d.x - d.w / 2, y = d.y - d.dh / 2;
+    const active = d.mode === 'access' && d.vlan;
+    const trunk = d.isTrunk;
+    const color = trunk ? '#ffd700' : (active ? getVlanColor(d.vlan) : '#5a5a78');
+    const glow = hoveredDevice === d || selectedDevice === d;
+
+    if (glow) { ctx.save(); ctx.shadowColor = color; ctx.shadowBlur = 34; }
+
+    ctx.fillStyle = 'rgba(8,12,26,0.92)';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.roundRect(x, y, d.w, d.dh * 0.52, 10);
+    ctx.fill(); ctx.stroke();
+
+    if (active || trunk) {
+        ctx.fillStyle = color;
+        ctx.globalAlpha = 0.16;
+        ctx.beginPath();
+        ctx.roundRect(x + 10, y + 9, d.w - 20, d.dh * 0.52 - 18, 6);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+    }
+
+    ctx.fillStyle = '#33405a';
+    ctx.fillRect(d.x - 7, y + d.dh * 0.52, 14, 12);
+    ctx.fillRect(x + 12, y + d.dh * 0.52 + 8, d.w - 24, 9);
+
+    if (glow) ctx.restore();
+
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 21px Courier New';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(d.label, d.x, y + d.dh + 30);
+
+    let badge = 'VLAN 1';
+    if (trunk) badge = 'TRUNK';
+    else if (active) badge = 'VLAN ' + d.vlan;
+    ctx.fillStyle = color;
+    ctx.font = (active || trunk ? 'bold ' : 'normal ') + '16px Courier New';
+    ctx.fillText(badge, d.x, y + d.dh + 54);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    ctx.font = '12px Courier New';
+    ctx.fillText(d.port, d.x, y + d.dh + 76);
+
+    if (active || trunk) {
+        ctx.font = '17px Segoe UI';
+        ctx.fillStyle = 'rgba(255,255,255,0.55)';
+        ctx.fillText(trunk ? 'TRUNK' : 'ONLINE', d.x, y + d.dh * 0.27);
+    }
+    ctx.textBaseline = 'alphabetic';
+}
+
+function drawTooltip(d, tx, ty, big) {
+    const info = deviceInfo(d);
+    const bigF = big ? 1.6 : 1;
+    ctx.font = 'bold ' + Math.round(15 * bigF) + 'px Segoe UI';
+    const tw = ctx.measureText(info.title).width;
+    ctx.font = Math.round(13 * bigF) + 'px Segoe UI';
+    let mw = tw;
+    const lines = info.lines;
+    lines.forEach(l => { const ww = ctx.measureText(l).width; if (ww > mw) mw = ww; });
+    const pad = Math.round(14 * bigF), lh = Math.round(21 * bigF);
+    const bw = mw + pad * 2;
+    const bh = lh * (lines.length + 1) + pad * 2 + 6;
+    let txx = tx + 40, tyy = ty - 30;
+    if (txx + bw > topo.w) txx = tx - bw - 30;
+    if (tyy < 12) tyy = 12;
+    if (tyy + bh > topo.h) tyy = topo.h - bh - 12;
+
+    ctx.fillStyle = 'rgba(15,18,40,0.95)';
+    ctx.strokeStyle = big ? '#00d4ff' : 'rgba(0,212,255,0.4)';
+    ctx.lineWidth = big ? 2.5 : 1.5;
+    ctx.beginPath();
+    ctx.roundRect(txx, tyy, bw, bh, big ? 14 : 10);
+    ctx.fill(); ctx.stroke();
+
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#00d4ff';
+    ctx.font = 'bold ' + Math.round(15 * bigF) + 'px Segoe UI';
+    ctx.fillText(info.title, txx + pad, tyy + pad + 5);
+    ctx.fillStyle = '#e6e6f0';
+    ctx.font = Math.round(13 * bigF) + 'px Segoe UI';
+    lines.forEach((l, i) => ctx.fillText(l, txx + pad, tyy + pad + 5 + lh * (i + 1)));
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+}
+
+function drawTopology() {
+    if (!canvas.width) return;
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    drawGrid(w, h);
+    buildTopology();
+
+    devices.forEach(d => { if (d.type === 'pc') drawConnection(d); });
+
+    const topSw = devices.find(d => d.type === 'switch');
+    if (topSw) {
+        const active = topSw.isTrunk;
+        const color = active ? '#ffd700' : '#3d3d55';
+        const px = topSw.x, py = topSw.y + topSw.dh / 2;
+        const sx = topo.cx, sy = topo.cy - topo.sh / 2;
+        if (active) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 12;
+            ctx.globalAlpha = 0.12;
+            ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(sx, sy); ctx.stroke();
+            ctx.globalAlpha = 1;
+        }
+        ctx.strokeStyle = color;
+        ctx.lineWidth = active ? 5 : 4;
+        ctx.setLineDash(active ? [16, 9] : []);
+        ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(sx, sy); ctx.stroke();
+        ctx.setLineDash([]);
+        if (active) {
+            const base = portSeed(topSw.port);
+            for (let k = 0; k < 3; k++) {
+                const t = (animTime * 0.55 + base + k / 3) % 1;
+                const x = px + (sx - px) * t;
+                const y = py + (sy - py) * t;
+                if (t > 0.03 && t < 0.97) {
+                    ctx.fillStyle = '#ffe082';
+                    ctx.globalAlpha = 0.95;
+                    ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.fill();
+                    ctx.globalAlpha = 0.3;
+                    ctx.beginPath(); ctx.arc(x, y, 13, 0, Math.PI * 2); ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+            }
+        }
+    }
+
+    devices.forEach(d => {
+        if (d.type === 'pc') drawPC(d);
+        else drawSwitchBox(d);
+    });
+
+    const tgt = hoveredDevice || selectedDevice;
+    if (tgt) {
+        const z = Math.min(1.5, (topo.w * 0.92) / tgt.w, (topo.h * 0.72) / tgt.dh);
+        if (z > 1.02) {
+            ctx.save();
+            ctx.translate(tgt.x, tgt.y);
+            ctx.scale(z, z);
+            ctx.translate(-tgt.x, -tgt.y);
+            if (tgt.type === 'pc') drawPC(tgt); else drawSwitchBox(tgt);
+            ctx.restore();
+            ctx.strokeStyle = 'rgba(0,212,255,0.75)';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([10, 7]);
+            ctx.beginPath();
+            ctx.arc(tgt.x, tgt.y, tgt.w / 2 + 6, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+        drawTooltip(tgt, mouseX, mouseY, true);
+    } else {
+        hoveredDevice = null;
+    }
+}
+
+function animationLoop() {
+    animTime = Date.now() / 1000;
+    drawTopology();
+    requestAnimationFrame(animationLoop);
+}
+
+(function initTopologyInteractions() {
+    function toCanvas(e) {
+        const r = canvas.getBoundingClientRect();
+        if (!r.width) return { x: -1e9, y: -1e9 };
+        return {
+            x: (e.clientX - r.left) * (canvas.width / r.width),
+            y: (e.clientY - r.top) * (canvas.height / r.height),
+        };
+    }
+    canvas.addEventListener('mousemove', e => {
+        const p = toCanvas(e);
+        mouseX = p.x;
+        mouseY = p.y;
+        hoveredDevice = hitTest(p.x, p.y);
+        canvas.style.cursor = hoveredDevice ? 'pointer' : 'default';
+    });
+    canvas.addEventListener('mouseleave', () => { hoveredDevice = null; });
+    canvas.addEventListener('click', e => {
+        const p = toCanvas(e);
+        selectedDevice = hitTest(p.x, p.y);
+    });
+    requestAnimationFrame(animationLoop);
+})();
+
+// ===================== ROBO ASSISTENTE (SF Bot) =====================
+const ROBOT_NAME = 'SF Bot';
+const robotBubble = document.getElementById('robotBubble');
+const robotTitleEl = document.getElementById('robotTitle');
+const robotTextEl = document.getElementById('robotText');
+let robotStepKey = '';
+let robotTimer = null;
+
+function setRobotBubble(title, text) {
+    robotTitleEl.textContent = title;
+    robotTextEl.innerHTML = text;
+    robotBubble.classList.add('visible');
+    robotBubble.style.animation = 'none';
+    void robotBubble.offsetWidth;
+    robotBubble.style.animation = '';
+}
+
+function getRobotStep(lvl) {
+    const cfg = state.vlanConfig;
+    const mode = state.mode;
+    const curIf = state.currentInterface;
+    const inVlan = state._currentVlan;
+    switch (lvl) {
+        case 0:
+            if (mode === 'user') return [ROBOT_NAME + ' 👋', 'Para começar, entre no modo de configuração digitando: <b>configure terminal</b>'];
+            if (!cfg.vlans[10]) return [ROBOT_NAME + ' ✨', 'Agora crie a VLAN 10 digitando: <b>vlan 10</b>'];
+            return [ROBOT_NAME + ' 🎉', 'VLAN 10 criada! Toque em <b>Próximo Nível</b> para continuar.'];
+        case 1:
+            if (mode === 'user' || inVlan !== 10) return [ROBOT_NAME + ' 📝', 'Volte a ela digitando <b>configure terminal</b> e depois <b>vlan 10</b>'];
+            if (!cfg.vlans[10] || !cfg.vlans[10].name) return [ROBOT_NAME + ' ✍️', 'Agora dê um nome à VLAN: <b>name TI</b>'];
+            return [ROBOT_NAME + ' 🎉', 'VLAN 10 agora se chama TI! Toque em <b>Próximo Nível</b>.'];
+        case 2:
+            if (mode === 'user') return [ROBOT_NAME + ' 🔧', 'Nova rede! Digite <b>configure terminal</b> e depois <b>vlan 20</b>'];
+            if (!cfg.vlans[20]) return [ROBOT_NAME + ' ➕', 'Crie a VLAN 20 digitando: <b>vlan 20</b>'];
+            if (!cfg.vlans[20].name) return [ROBOT_NAME + ' ✍️', 'Dê o nome: <b>name RH</b>'];
+            return [ROBOT_NAME + ' 🎉', 'VLAN 20 = RH! Toque em <b>Próximo Nível</b>.'];
+        case 3:
+            const i1 = cfg.interfaces['fa0/1'];
+            if (curIf !== 'fa0/1') return [ROBOT_NAME + ' 🔌', 'Agora as portas. Selecione: <b>interface fa0/1</b>'];
+            if (!i1 || i1.mode !== 'access') return [ROBOT_NAME + ' 🚪', 'Defina o modo da porta: <b>switchport mode access</b>'];
+            if (i1.vlan !== 10) return [ROBOT_NAME + ' 🏷️', 'Atribua a VLAN: <b>switchport access vlan 10</b>'];
+            return [ROBOT_NAME + ' 🎉', 'fa0/1 na VLAN 10! Toque em <b>Próximo Nível</b>.'];
+        case 4:
+            const ig = cfg.interfaces['g0/1'];
+            if (curIf !== 'g0/1') return [ROBOT_NAME + ' 🔗', 'Hora do trunk! Selecione: <b>interface g0/1</b>'];
+            if (!ig || ig.mode !== 'trunk') return [ROBOT_NAME + ' 🚉', 'Vire a porta em trunk: <b>switchport mode trunk</b>'];
+            return [ROBOT_NAME + ' 🎉', 'Trunk configurada! Toque em <b>Próximo Nível</b>.'];
+        case 5:
+            const i2 = cfg.interfaces['fa0/2'];
+            if (curIf !== 'fa0/2') return [ROBOT_NAME + ' 🏁', 'Última porta! Selecione: <b>interface fa0/2</b>'];
+            if (!i2 || i2.mode !== 'access') return [ROBOT_NAME + ' 🚪', 'Modo access: <b>switchport mode access</b>'];
+            if (i2.vlan !== 20) return [ROBOT_NAME + ' 🏷️', 'Atribua à RH: <b>switchport access vlan 20</b>'];
+            if (!cfg._saved) return [ROBOT_NAME + ' 💾', 'Para concluir, salve: <b>copy running-config startup-config</b>'];
+            return [ROBOT_NAME + ' 🏆', 'Configuração completa! Toque em <b>Próximo Nível</b>.'];
+    }
+    return [ROBOT_NAME + ' 🤖', 'Boa sorte nesta etapa!'];
+}
+
+function updateRobot() {
+    if (!robotBubble) return;
+    const lvl = state.currentLevel;
+    const complete = levels[lvl].check(state.vlanConfig);
+    let title, text;
+    if (complete) {
+        if (lvl >= levels.length - 1) {
+            title = '🏆 ' + ROBOT_NAME + ' — Missão cumprida!';
+            text = 'Você configurou todas as VLANs. Toque em <b>Próximo Nível</b> para ver o resultado final!';
+        } else {
+            title = '🎉 ' + ROBOT_NAME + ' — Nível ' + (lvl + 1) + ' completo!';
+            text = 'Próxima etapa: toque em <b>Próximo Nível</b> →';
+        }
+    } else {
+        const g = getRobotStep(lvl);
+        title = g[0];
+        text = g[1];
+    }
+    const key = lvl + '|' + complete + '|' + title + text;
+    if (key !== robotStepKey) {
+        robotStepKey = key;
+        setRobotBubble(title, text);
+    }
+}
+
+function scheduleUpdateRobot() {
+    clearTimeout(robotTimer);
+    robotTimer = setTimeout(updateRobot, 80);
+}
+
+// ===================== TERMINAL =====================
+const terminalBody = document.getElementById('terminalBody');
+const terminalInput = document.getElementById('terminalInput');
+
+function addOutput(text, className = '') {
+    const inputLine = terminalBody.querySelector('.input-line');
+    const div = document.createElement('div');
+    div.className = `output console-line ${className}`;
+    div.innerHTML = text;
+    terminalBody.insertBefore(div, inputLine);
+    terminalBody.scrollTop = terminalBody.scrollHeight;
+}
+
+function getPrompt() {
+    switch (state.mode) {
+        case 'config': return 'Switch(config)#';
+        case 'config-vlan': return `Switch(config-vlan)#`;
+        case 'config-if': return `Switch(config-if)#`;
+        case 'config-if-range': return 'Switch(config-if-range)#';
+        default: return 'Switch>';
+    }
+}
+
+function updatePrompt() {
+    const promptEl = terminalBody.querySelector('.prompt');
+    if (promptEl) promptEl.textContent = getPrompt();
+}
+
+function processCommand(cmd) {
+    const trimmed = cmd.trim().toLowerCase();
+    const original = cmd.trim();
+    state.attempts++;
+    document.getElementById('attemptsDisplay').textContent = state.attempts;
+
+    addOutput(`${getPrompt()} ${original}`, '');
+    scheduleUpdateRobot();
+
+    if (!trimmed) return;
+
+    state.commandHistory.push(original);
+    state.historyIndex = state.commandHistory.length;
+
+    // Help command
+    if (trimmed === 'ajuda' || trimmed === 'help') {
+        addOutput('Comandos disponíveis:', 'info');
+        addOutput('  configure terminal    - Entrar no modo de configuração', 'info');
+        addOutput('  vlan <id>             - Criar/selecionar VLAN', 'info');
+        addOutput('  name <nome>           - Nomear VLAN', 'info');
+        addOutput('  interface <port>      - Selecionar interface', 'info');
+        addOutput('  switchport mode access|trunk - Modo da porta', 'info');
+        addOutput('  switchport access vlan <id>  - Atribuir VLAN', 'info');
+        addOutput('  show vlan brief       - Ver VLANs', 'info');
+        addOutput('  show interfaces status - Ver portas', 'info');
+        addOutput('  exit                  - Sair do modo atual', 'info');
+        addOutput('  end                   - Voltar ao prompt principal', 'info');
+        return;
+    }
+
+    // Show commands
+    if (trimmed === 'show vlan brief' || trimmed === 'show vlan') {
+        showVlanBrief();
+        return;
+    }
+
+    if (trimmed === 'show interfaces status' || trimmed === 'show int status') {
+        showInterfacesStatus();
+        return;
+    }
+
+    if (trimmed === 'show running-config' || trimmed === 'show run') {
+        showRunningConfig();
+        return;
+    }
+
+    // Configure terminal
+    if (trimmed === 'configure terminal' || trimmed === 'conf t') {
+        state.mode = 'config';
+        updatePrompt();
+        addOutput('Configuração global entrando no modo global.', 'system');
+        return;
+    }
+
+    // Exit / end
+    if (trimmed === 'end' || trimmed === 'exit') {
+        if (state.mode === 'config-if' || state.mode === 'config-if-range') {
+            state.mode = 'config';
+            state.currentInterface = null;
+        } else if (state.mode === 'config-vlan') {
+            state.mode = 'config';
+        } else if (state.mode === 'config') {
+            state.mode = 'user';
+        }
+        updatePrompt();
+        return;
+    }
+
+    // VLAN creation / selection
+    if (trimmed.startsWith('vlan ')) {
+        const vlanId = parseInt(trimmed.split(' ')[1]);
+        if (isNaN(vlanId) || vlanId < 1 || vlanId > 4094) {
+            addOutput('% ID de VLAN inválido. Use 1-4094.', 'error');
+            return;
+        }
+        if (state.mode === 'config' || state.mode === 'config-vlan') {
+            if (!state.vlanConfig.vlans[vlanId]) {
+                state.vlanConfig.vlans[vlanId] = { name: '', ports: [] };
+                addOutput(`VLAN ${vlanId} criada.`, 'success');
+            } else {
+                addOutput(`VLAN ${vlanId} já existe. Entrando na configuração.`, 'system');
+            }
+            state.mode = 'config-vlan';
+            state._currentVlan = vlanId;
+            updatePrompt();
+            drawTopology();
+            updateVlanTable();
+            return;
+        }
+        addOutput('%% Entre no modo de configuração primeiro.', 'error');
+        return;
+    }
+
+    // Name command (inside vlan config)
+    if (trimmed.startsWith('name ')) {
+        if (state.mode === 'config-vlan' && state._currentVlan) {
+            const name = original.substring(5).trim();
+            state.vlanConfig.vlans[state._currentVlan].name = name;
+            addOutput(`Nome da VLAN ${state._currentVlan} definido como "${name}".`, 'success');
+            drawTopology();
+            updateVlanTable();
+            checkLevelComplete();
+            return;
+        }
+        addOutput('%% Use este comando no modo config-vlan.', 'error');
+        return;
+    }
+
+    // Interface selection
+    if (trimmed.startsWith('interface ')) {
+        if (state.mode === 'config' || state.mode === 'config-if') {
+            const intfName = trimmed.substring(10).trim();
+            if (!state.vlanConfig.interfaces[intfName]) {
+                state.vlanConfig.interfaces[intfName] = { mode: null, vlan: null };
+            }
+            state.mode = 'config-if';
+            state.currentInterface = intfName;
+            state._currentVlan = null;
+            updatePrompt();
+            return;
+        }
+        addOutput('%% Entre no modo de configuração primeiro.', 'error');
+        return;
+    }
+
+    // switchport mode
+    if (trimmed === 'switchport mode access') {
+        if (state.mode === 'config-if' && state.currentInterface) {
+            state.vlanConfig.interfaces[state.currentInterface].mode = 'access';
+            addOutput(`${state.currentInterface} definido como modo access.`, 'success');
+            drawTopology();
+            checkLevelComplete();
+            return;
+        }
+        addOutput('%% Selecione uma interface primeiro.', 'error');
+        return;
+    }
+
+    if (trimmed === 'switchport mode trunk') {
+        if (state.mode === 'config-if' && state.currentInterface) {
+            state.vlanConfig.interfaces[state.currentInterface].mode = 'trunk';
+            addOutput(`${state.currentInterface} definido como modo trunk.`, 'success');
+            drawTopology();
+            checkLevelComplete();
+            return;
+        }
+        addOutput('%% Selecione uma interface primeiro.', 'error');
+        return;
+    }
+
+    // switchport access vlan
+    if (trimmed.startsWith('switchport access vlan ') || trimmed.startsWith('switchport access vlan')) {
+        if (state.mode === 'config-if' && state.currentInterface) {
+            const parts = trimmed.split(' ');
+            const vlanId = parseInt(parts[parts.length - 1]);
+            if (isNaN(vlanId)) {
+                addOutput('% Especifique um ID de VLAN válido.', 'error');
+                return;
+            }
+            if (!state.vlanConfig.vlans[vlanId]) {
+                state.vlanConfig.vlans[vlanId] = { name: '', ports: [] };
+                addOutput(`VLAN ${vlanId} criada automaticamente.`, 'warning');
+            }
+            state.vlanConfig.interfaces[state.currentInterface].vlan = vlanId;
+            if (!state.vlanConfig.vlans[vlanId].ports.includes(state.currentInterface)) {
+                state.vlanConfig.vlans[vlanId].ports.push(state.currentInterface);
+            }
+            addOutput(`${state.currentInterface} atribuído à VLAN ${vlanId}.`, 'success');
+            drawTopology();
+            updateVlanTable();
+            checkLevelComplete();
+            return;
+        }
+        addOutput('%% Selecione uma interface primeiro.', 'error');
+        return;
+    }
+
+    // Save config
+    if (trimmed === 'copy running-config startup-config' || trimmed === 'copy run start' || trimmed === 'wr') {
+        state.vlanConfig._saved = true;
+        addOutput('Configuração salva!', 'success');
+        addOutput('[OK]', 'success');
+        checkLevelComplete();
+        return;
+    }
+
+    // no shutdown
+    if (trimmed === 'no shutdown' || trimmed === 'no shut') {
+        if (state.mode === 'config-if' && state.currentInterface) {
+            addOutput(`${state.currentInterface} ativado.`, 'success');
+            return;
+        }
+        addOutput('%% Selecione uma interface primeiro.', 'error');
+        return;
+    }
+
+    // unknown
+    addOutput(`% Comando não reconhecido: "${original}". Digite 'ajuda' para ver comandos.`, 'error');
+}
+
+function showVlanBrief() {
+    const vlans = state.vlanConfig.vlans;
+    if (Object.keys(vlans).length === 0) {
+        addOutput('Nenhuma VLAN configurada.', 'warning');
+        return;
+    }
+    addOutput('VLAN Name                             Status    Ports', 'info');
+    addOutput('---- -------------------------------- --------- ------', 'info');
+    for (const [id, vlan] of Object.entries(vlans)) {
+        const name = (vlan.name || '(sem nome)').padEnd(34);
+        const ports = (vlan.ports || []).join(', ');
+        addOutput(`${String(id).padEnd(5)}${name}active    ${ports}`, '');
+    }
+    addOutput('', '');
+}
+
+function showInterfacesStatus() {
+    const intfs = state.vlanConfig.interfaces;
+    addOutput('Port      Name               Status      Vlan', 'info');
+    addOutput('--------- ------------------ ----------- ------', 'info');
+    const allPorts = ['fa0/1','fa0/2','fa0/3','fa0/4','fa0/5','fa0/6','fa0/7','fa0/8','g0/1','g0/2'];
+    allPorts.forEach(p => {
+        const intf = intfs[p];
+        let status = 'down';
+        let vlan = '1';
+        if (intf) {
+            status = 'up';
+            if (intf.mode === 'trunk') vlan = 'trunk';
+            else if (intf.vlan) vlan = String(intf.vlan);
+        }
+        addOutput(`${p.padEnd(10)} ${''.padEnd(20)} ${status.padEnd(12)} ${vlan}`, '');
+    });
+}
+
+function showRunningConfig() {
+    addOutput('Building configuration...', 'system');
+    addOutput('', '');
+    addOutput('hostname Switch', '');
+    addOutput('!', '');
+    const vlans = state.vlanConfig.vlans;
+    for (const [id, vlan] of Object.entries(vlans)) {
+        addOutput(`vlan ${id}`, '');
+        if (vlan.name) addOutput(` name ${vlan.name}`, '');
+    }
+    addOutput('!', '');
+    const intfs = state.vlanConfig.interfaces;
+    for (const [name, intf] of Object.entries(intfs)) {
+        addOutput(`interface ${name}`, '');
+        if (intf.mode === 'trunk') {
+            addOutput(' switchport mode trunk', '');
+        } else if (intf.mode === 'access') {
+            addOutput(' switchport mode access', '');
+            if (intf.vlan) addOutput(` switchport access vlan ${intf.vlan}`, '');
+        }
+    }
+    addOutput('!', '');
+    addOutput('end', '');
+}
+
+// ===================== LEVEL MANAGEMENT =====================
+function updateUI() {
+    const level = levels[state.currentLevel];
+    document.getElementById('levelTitle').textContent = level.title;
+    document.getElementById('taskDesc').textContent = level.desc;
+    document.getElementById('hintBox').innerHTML = level.hint;
+    document.getElementById('levelDisplay').textContent = state.currentLevel + 1;
+    document.getElementById('scoreDisplay').textContent = state.score;
+    document.getElementById('progressFill').style.width = `${((state.currentLevel) / levels.length) * 100}%`;
+    updateVlanTable();
+    updateLegend();
+    drawTopology();
+}
+
+function updateVlanTable() {
+    const tbody = document.getElementById('vlanTableBody');
+    const vlans = state.vlanConfig.vlans;
+    if (Object.keys(vlans).length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#666;">Nenhuma VLAN configurada</td></tr>';
+        return;
+    }
+    tbody.innerHTML = '';
+    for (const [id, vlan] of Object.entries(vlans)) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><span style="color:${getVlanColor(parseInt(id))}">${id}</span></td>
+            <td>${vlan.name || '(sem nome)'}</td>
+            <td>${(vlan.ports || []).join(', ') || '-'}</td>
+            <td style="color:#27c93f">active</td>
+        `;
+        tbody.appendChild(row);
+    }
+}
+
+function updateLegend() {
+    const legend = document.getElementById('vlanLegend');
+    const vlans = state.vlanConfig.vlans;
+    let html = '';
+    for (const [id, vlan] of Object.entries(vlans)) {
+        html += `<div class="legend-item"><div class="legend-color" style="background:${getVlanColor(parseInt(id))}"></div>VLAN ${id} ${vlan.name ? '('+vlan.name+')' : ''}</div>`;
+    }
+    if (Object.keys(state.vlanConfig.interfaces).length > 0) {
+        const hasTrunk = Object.values(state.vlanConfig.interfaces).some(i => i.mode === 'trunk');
+        if (hasTrunk) {
+            html += `<div class="legend-item"><div class="legend-color" style="background:#ffd700"></div>Trunk</div>`;
+        }
+    }
+    legend.innerHTML = html;
+}
+
+function checkLevelComplete() {
+    const level = levels[state.currentLevel];
+    if (level.check(state.vlanConfig)) {
+        setTimeout(() => {
+            const points = Math.max(100 - (state.attempts - 1) * 10, 20);
+            state.score += points;
+            document.getElementById('scoreDisplay').textContent = state.score;
+            
+            document.getElementById('successMsg').textContent = level.successMsg;
+            document.getElementById('successScore').textContent = `+${points} pontos`;
+            
+            if (state.currentLevel >= levels.length - 1) {
+                document.getElementById('successTitle').textContent = '🏆 Jogo Completo!';
+                document.getElementById('successScore').textContent = `Pontuação Final: ${state.score}`;
+                document.getElementById('successModal').querySelector('button').textContent = '🏠 Ver Resultado';
+                document.getElementById('successModal').querySelector('button').onclick = () => {
+                    document.getElementById('successModal').classList.remove('active');
+                    document.getElementById('gameCompleteModal').classList.add('active');
+                    document.getElementById('finalScore').textContent = `Pontuação Final: ${state.score}`;
+                    document.getElementById('progressFill').style.width = '100%';
+                };
+            }
+            
+            document.getElementById('successModal').classList.add('active');
+        }, 500);
+    }
+}
+
+function nextLevel() {
+    document.getElementById('successModal').classList.remove('active');
+    if (state.currentLevel < levels.length - 1) {
+        state.currentLevel++;
+        state.attempts = 0;
+        state.vlanConfig = JSON.parse(JSON.stringify(levels[state.currentLevel].initialConfig));
+        state.mode = 'user';
+        state.currentInterface = null;
+        state._currentVlan = null;
+        
+        // Clear terminal except input
+        const inputLine = terminalBody.querySelector('.input-line');
+        terminalBody.innerHTML = '';
+        terminalBody.appendChild(inputLine);
+        
+        addOutput(`--- Nível ${state.currentLevel + 1} ---`, 'system');
+        updatePrompt();
+        updateUI();
+        updateRobot();
+    }
+}
+
+function resetLevel() {
+    state.attempts = 0;
+    state.vlanConfig = JSON.parse(JSON.stringify(levels[state.currentLevel].initialConfig));
+    state.mode = 'user';
+    state.currentInterface = null;
+    state._currentVlan = null;
+    
+    const inputLine = terminalBody.querySelector('.input-line');
+    terminalBody.innerHTML = '';
+    terminalBody.appendChild(inputLine);
+    
+    addOutput('--- Nível reiniciado ---', 'warning');
+    updatePrompt();
+    updateUI();
+    updateRobot();
+}
+
+function resetGame() {
+    document.getElementById('welcomeModal').classList.add('active');
+    document.getElementById('successModal').classList.remove('active');
+    document.getElementById('gameCompleteModal').classList.remove('active');
+    
+    state.currentLevel = 0;
+    state.score = 0;
+    state.attempts = 0;
+    state.mode = 'user';
+    state.currentInterface = null;
+    state._currentVlan = null;
+    state.vlanConfig = JSON.parse(JSON.stringify(levels[0].initialConfig));
+    state.commandHistory = [];
+    state.historyIndex = -1;
+    
+    const inputLine = terminalBody.querySelector('.input-line');
+    terminalBody.innerHTML = '';
+    terminalBody.appendChild(inputLine);
+    
+    addOutput('Switch0 initialised.', 'system');
+    addOutput('Bem-vindo ao simulador de switch Cisco!', 'info');
+    addOutput("Digite 'ajuda' para ver os comandos disponíveis.", 'system');
+    updatePrompt();
+    updateUI();
+    robotStepKey = '';
+    updateRobot();
+}
+
+function skipLevel() {
+    if (state.currentLevel < levels.length - 1) {
+        state.currentLevel++;
+        state.attempts = 0;
+        state.vlanConfig = JSON.parse(JSON.stringify(levels[state.currentLevel].initialConfig));
+        state.mode = 'user';
+        state.currentInterface = null;
+        state._currentVlan = null;
+
+        const inputLine = terminalBody.querySelector('.input-line');
+        terminalBody.innerHTML = '';
+        terminalBody.appendChild(inputLine);
+
+        addOutput(`--- Nível ${state.currentLevel + 1} (pulado) ---`, 'system');
+        updatePrompt();
+        updateUI();
+        updateRobot();
+    }
+}
+
+function showHint() {
+    const level = levels[state.currentLevel];
+    const hintBox = document.getElementById('hintBox');
+    hintBox.style.display = 'block';
+    hintBox.innerHTML = level.hint;
+    addOutput('💡 ' + level.hint.replace(/<[^>]+>/g, ''), 'warning');
+}
+
+function closeWelcome() {
+    document.getElementById('welcomeModal').classList.remove('active');
+    robotStepKey = '';
+    setRobotBubble(ROBOT_NAME + ' 🤖 Olá!', 'Vou te acompanhar até concluir. Sempre que terminar uma etapa, eu te mostro qual é a <b>próxima</b>. Pode digitar <b>ajuda</b> a qualquer momento!');
+    // Aguarda o utilizador clicar no botão "▶ Iniciar Etapa" abaixo
+    document.getElementById('robotContinueBtn').style.display = 'block';
+    terminalInput.focus();
+}
+
+function robotContinue() {
+    document.getElementById('robotContinueBtn').style.display = 'none';
+    updateRobot();
+    terminalInput.focus();
+}
+
+// ===================== INPUT HANDLING =====================
+terminalInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        const cmd = terminalInput.value;
+        terminalInput.value = '';
+        processCommand(cmd);
+    } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (state.historyIndex > 0) {
+            state.historyIndex--;
+            terminalInput.value = state.commandHistory[state.historyIndex] || '';
+        }
+    } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (state.historyIndex < state.commandHistory.length - 1) {
+            state.historyIndex++;
+            terminalInput.value = state.commandHistory[state.historyIndex] || '';
+        } else {
+            state.historyIndex = state.commandHistory.length;
+            terminalInput.value = '';
+        }
+    } else if (e.key === 'Tab') {
+        e.preventDefault();
+        // Simple tab completion
+        const val = terminalInput.value.toLowerCase();
+        const commands = ['configure terminal', 'vlan', 'interface', 'switchport mode access', 'switchport mode trunk', 'switchport access vlan', 'show vlan brief', 'show interfaces status', 'show running-config', 'copy running-config startup-config', 'exit', 'end', 'ajuda', 'no shutdown', 'name'];
+        const match = commands.find(c => c.startsWith(val) && c !== val);
+        if (match) terminalInput.value = match;
+    }
+});
+
+terminalBody.addEventListener('click', () => terminalInput.focus());
+
+// ===================== INIT =====================
+window.addEventListener('load', () => {
+    state.vlanConfig = JSON.parse(JSON.stringify(levels[0].initialConfig));
+    resizeCanvas();
+    updateUI();
+    updateRobot();
+});
+
+window.addEventListener('resize', resizeCanvas);
+
+// Canvas roundRect polyfill
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+    CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+        if (typeof r === 'number') r = [r];
+        const [tl, tr = tl, br = tl, bl = tr] = r;
+        this.moveTo(x + tl, y);
+        this.lineTo(x + w - tr, y);
+        this.quadraticCurveTo(x + w, y, x + w, y + tr);
+        this.lineTo(x + w, y + h - br);
+        this.quadraticCurveTo(x + w, y + h, x + w - br, y + h);
+        this.lineTo(x + bl, y + h);
+        this.quadraticCurveTo(x, y + h, x, y + h - bl);
+        this.lineTo(x, y + tl);
+        this.quadraticCurveTo(x, y, x + tl, y);
+        this.closePath();
+        return this;
+    };
+}
+</script>
+
+</body>
+</html>
