@@ -588,7 +588,7 @@
             </div>
             <div class="terminal-body" id="terminalBody">
                 <div class="output system">Switch0 initialised.</div>
-                <div class="output info">Bem-vindo ao simulador de switch Sisco!</div>
+                <div class="output info">Bem-vindo ao simulador de switch SHISCO!</div>
                 <div class="output system">Digite 'ajuda' para ver os comandos disponíveis.</div>
                 <div class="input-line">
                     <span class="prompt">Switch&gt;</span>
@@ -683,7 +683,7 @@
                 <span>Verificar conectividade</span>
             </div>
         </div>
-        <p style="font-size:0.9em; color:#888;">Use o terminal para digitar comandos Sisco reais!</p>
+        <p style="font-size:0.9em; color:#888;">Use o terminal para digitar comandos SHISCO reais!</p>
         <button class="btn btn-primary" onclick="closeWelcome()" style="font-size:1.1em; padding: 15px 40px;">
             🚀 Começar!
         </button>
@@ -893,7 +893,7 @@ function deviceInfo(d) {
     if (d.type === 'main-switch') {
         const vcount = Object.keys(state.vlanConfig.vlans).length;
         return {
-            title: 'SWITCH 0 · Sisco 2960',
+            title: 'SWITCH 0 · SHISCO 2960',
             lines: [
                 vcount ? vcount + ' VLAN(s) configurada(s)' : 'Nenhuma VLAN ainda',
                 'Configurar pelas portas abaixo',
@@ -1025,7 +1025,7 @@ function drawSwitchBox(d) {
     const bY = y + Math.max(15, dh * 0.13);
     ctx.fillStyle = '#c9d2dc';
     ctx.font = 'bold 13px Arial';
-    ctx.fillText('Sisco SYSTEMS', x + 20, bY);
+    ctx.fillText('SHISCO SYSTEMS', x + 20, bY);
     ctx.font = '10px Arial';
     ctx.fillStyle = '#8a95a1';
     ctx.fillText(main ? 'Catalyst 2960-24TT' : 'Catalyst 2960-4', x + 20, bY + 13);
@@ -1843,7 +1843,7 @@ function resetGame() {
     terminalBody.appendChild(inputLine);
     
     addOutput('Switch0 initialised.', 'system');
-    addOutput('Bem-vindo ao simulador de switch Cisco!', 'info');
+    addOutput('Bem-vindo ao simulador de switch SHISCO!', 'info');
     addOutput("Digite 'ajuda' para ver os comandos disponíveis.", 'system');
     updatePrompt();
     updateUI();
