@@ -26,7 +26,7 @@ Simulador **interativo e educativo** de um switch Cisco 🖥️ para ensinar **V
 
 ## 🚀 Como usar
 
-1. Clone este repositório ou baixe o arquivo `index.html`.
+1. Acesse o site 🌐 https://redevirtual.projetosdisruptivos.com.br/ ou  clone este repositório ou baixe o arquivo `index.html`.
 2. Abra o arquivo no navegador (Google Chrome, Edge, Firefox, etc.) — **não precisa instalar nada!** 🎉
 3. Digite seu **nome do aluno** na tela inicial e clique em **🚀 Começar!**
 4. Leia as instruções, digite os comandos no terminal e complete os 6 níveis.
